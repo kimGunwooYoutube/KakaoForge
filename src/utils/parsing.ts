@@ -1,5 +1,20 @@
+import * as LosslessJSON from 'lossless-json';
 import { toLong, safeNumber, isBlankText, truncateChatLogMessage, stringifyLossless, normalizeIdValue } from './helpers';
 import type { CarriageClient } from '../net/carriage-client';
+
+function parseJsonPreserveUnsafeIntegers(text: string): any {
+  return LosslessJSON.parse(text, undefined, {
+    parseNumber: (value: string) => {
+      // Keep legacy behavior for normal numbers, but preserve unsafe integers as strings.
+      if (/^-?\d+$/.test(value)) {
+        const parsed = Number(value);
+        return Number.isSafeInteger(parsed) ? parsed : value;
+      }
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : value;
+    },
+  });
+}
 
 export function parseAttachments(raw: any): any[] {
   if (raw === undefined || raw === null) return [];
@@ -8,7 +23,7 @@ export function parseAttachments(raw: any): any[] {
     const trimmed = parsed.trim();
     if (!trimmed) return [];
     try {
-      parsed = JSON.parse(trimmed);
+      parsed = parseJsonPreserveUnsafeIntegers(trimmed);
     } catch {
       return [];
     }
@@ -35,7 +50,7 @@ export function parseAttachmentJson(raw: any): any {
     const trimmed = raw.trim();
     if (!trimmed) return null;
     try {
-      return JSON.parse(trimmed);
+      return parseJsonPreserveUnsafeIntegers(trimmed);
     } catch {
       return null;
     }
