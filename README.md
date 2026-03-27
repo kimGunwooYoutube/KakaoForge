@@ -12,6 +12,13 @@
 
 </div>
 
+# 알아둬야하는사항
+
+이 라이브러리는 제가 개발한것이아닙니다.
+
+> 제가 필요한기능들을추가하려 Fork 한 버전입니다.
+https://github.com/aodjo/KakaoForge
+원본 깃허브
 
 # KakaoForge
 
